@@ -22,12 +22,14 @@ var sum = 0;
 foreach (var line in file)
 {
 	var left = line.FirstOrDefault(char.IsDigit);
-	var right = line.LastOrDefault(char.IsDigit);
 
-	if (left == default || right == default)
+	if (left == default)
 	{
 		continue;
 	}
+
+	var right = line.LastOrDefault(char.IsDigit);
+
 	var number = int.Parse($"{left}{right}");
 	sum += number;
 }
