@@ -1,37 +1,30 @@
-﻿if (args.Length != 1)
+﻿using static SharedFunctions.SharedFunctions;
+
+if (!GetFileNameFromArgs(args, out string fileName))
 {
-	Console.WriteLine($"Program needs 1 argument: <filename>");
-	return;
+    return;
 }
 
-string[] file;
-
-try
+if (!GetContentFromFile(fileName, out string content))
 {
-	file = File.ReadAllLines(args[0]);
-}
-catch (Exception e)
-{
-	Console.WriteLine("Error while reading file:");
-	Console.WriteLine(e.Message);
-	return;
+    return;
 }
 
 var sum = 0;
 
-foreach (var line in file)
+foreach (var line in content.Split(Environment.NewLine))
 {
-	var left = line.FirstOrDefault(char.IsDigit);
+    var left = line.FirstOrDefault(char.IsDigit);
 
-	if (left == default)
-	{
-		continue;
-	}
+    if (left == default)
+    {
+        continue;
+    }
 
-	var right = line.LastOrDefault(char.IsDigit);
+    var right = line.LastOrDefault(char.IsDigit);
 
-	var number = int.Parse($"{left}{right}");
-	sum += number;
+    var number = int.Parse($"{left}{right}");
+    sum += number;
 }
 
 Console.WriteLine($"Result: {sum}");
