@@ -13,30 +13,38 @@ if (!GetContentFromFile(fileName, out string content))
 var lines = content.Split(Environment.NewLine);
 
 var numbers = GetNumbers(lines);
-var adjacentIndexes = GetIndexesAdjacentToSymbols(lines);
+var stars = GetStars(lines);
 
-var sum = numbers
-    .Where(number => number.Indexes.Any
-    (
-        index => adjacentIndexes.Contains(index)
-    ))
-    .Sum(number => number.Value);
+var sum = stars
+    .Select(star =>
+        new
+        {
+            Numbers = numbers
+                .Where(number => number.Indexes.Any(index => star.AdjacentIndexes.Contains(index)))
+                .Select(number => number.Value)
+        })
+    .Where(x => x.Numbers.Count() == 2)
+    .Sum(x => x.Numbers.Aggregate((number1, number2) => number1 * number2));
 
 Console.WriteLine(sum);
 
-static HashSet<(int, int)> GetIndexesAdjacentToSymbols(string[] lines)
+static List<Star> GetStars(string[] lines)
 {
-    var adjacentIndexes = new HashSet<(int, int)>();
+    var stars = new List<Star>();
+    var adjacentIndexes = new List<(int, int)>();
 
     for (int row = 0; row < lines.Length; row++)
     {
         for (int col = 0; col < lines[row].Length; col++)
         {
             var character = lines[row][col];
-            if (character == '.' || char.IsDigit(character))
+
+            if (character != '*')
             {
                 continue;
             }
+
+            adjacentIndexes.Clear();
 
             for (int i = -1; i < 2; i++)
             {
@@ -59,10 +67,19 @@ static HashSet<(int, int)> GetIndexesAdjacentToSymbols(string[] lines)
                     adjacentIndexes.Add((adjacentRow, adjacentCol));
                 }
             }
+
+            stars.Add
+            (
+                new Star
+                {
+                    Index = (row, col),
+                    AdjacentIndexes = adjacentIndexes.ToArray()
+                }
+            );
         }
     }
 
-    return adjacentIndexes;
+    return stars;
 }
 
 static List<Number> GetNumbers(string[] lines)
@@ -124,4 +141,10 @@ struct Number
 {
     public int Value;
     public (int, int)[] Indexes;
+}
+
+struct Star
+{
+    public (int, int) Index;
+    public (int, int)[] AdjacentIndexes;
 }
